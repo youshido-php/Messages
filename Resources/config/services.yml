@@ -1,0 +1,6 @@
+services:
+
+    messages:
+        class: Youshido\MessagesBundle\Service\MessagesService
+        calls:
+            - [setContainer, [@service_container]]
