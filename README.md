@@ -5,7 +5,7 @@ $user = $this->get('doctrine')->getRepository('AppBundle:User')
     ->find(1);
 
 $user2 = $this->get('doctrine')->getRepository('AppBundle:User')
-    ->find(1);
+    ->find(2);
 
 $rooms = $this->get('messages')->getRooms($user);
 $newMessages = $this->get('messages')->countUnreadMessages($user);
