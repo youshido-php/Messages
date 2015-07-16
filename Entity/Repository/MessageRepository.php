@@ -18,10 +18,11 @@ class MessageRepository extends EntityRepository
     public function findMessages(Room $room, $limit = false, $offset = 0)
     {
         $builder = $this->createQueryBuilder('m')
-            ->select('m, s')
+            ->select('m, s, a')
             ->where('m.room = :room')
             ->setParameter('room', $room)
             ->leftJoin('m.statuses', 's')
+            ->leftJoin('m.attaches', 'a')
             ->orderBy('m.createdAt', 'DESC');
 
         if ($limit) {

@@ -3,6 +3,7 @@
 namespace Youshido\MessagesBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Youshido\UploadableBundle\Annotations as Youshido;
 
 /**
  * Attach
@@ -28,6 +29,28 @@ class Attach
      * @ORM\JoinColumn(name="message_id", referencedColumnName="id")
      */
     private $message;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="image", type="string", length=255)
+     *
+     * @Youshido\Uploadable(override="true", asserts={@Assert\File(
+     *     maxSize = "1024k",
+     *     mimeTypes = {"image/jpeg"},
+     *     mimeTypesMessage = "Please upload a valid Image"
+     * )})
+     */
+    private $image;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="file", type="string", length=255)
+     *
+     * @Youshido\Uploadable(override="true")
+     */
+    private $file;
 
     /**
      * Get id
