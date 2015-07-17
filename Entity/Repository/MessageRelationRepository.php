@@ -10,30 +10,29 @@ namespace Youshido\MessagesBundle\Entity\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Youshido\MessagesBundle\Entity\Author;
-use Youshido\MessagesBundle\Entity\MessageStatus;
 
-class MessageStatusRepository extends EntityRepository
+class MessageRelationRepository extends EntityRepository
 {
 
-    public function countUnReadMessages(Author $author)
+    public function countMessagesWithStatus(Author $author, $status)
     {
         return $this->createQueryBuilder('m')
             ->select('COUNT(m)')
             ->where('m.author = :author')
             ->andWhere('m.status = :status')
             ->setParameter('author', $author)
-            ->setParameter('status', MessageStatus::STATUS_UNREAD)
+            ->setParameter('status', $status)
             ->getQuery()
             ->getSingleScalarResult();
     }
 
-    public function unreadMessages($messagesIds, Author $author)
+    public function setStatusForMessages($messagesIds, Author $author, $status)
     {
         $builder = $this->createQueryBuilder('m');
 
         $builder
             ->update()
-            ->set('m.status', MessageStatus::STATUS_READ)
+            ->set('m.status', $status)
             ->where($builder->expr()->in('m.message', $messagesIds))
             ->andWhere('m.author = :author')
             ->setParameter('author', $author)

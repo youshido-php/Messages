@@ -39,12 +39,12 @@ class Message
     private $createdAt;
 
     /**
-     * @var Room
+     * @var Conversation
      *
-     * @ORM\ManyToOne(targetEntity="Youshido\MessagesBundle\Entity\Room", inversedBy="messages")
+     * @ORM\ManyToOne(targetEntity="Youshido\MessagesBundle\Entity\Conversation", inversedBy="messages")
      * @ORM\JoinColumn(name="root_id", referencedColumnName="id")
      */
-    private $room;
+    private $conversation;
 
     /**
      * @var Author
@@ -59,13 +59,13 @@ class Message
     private $attaches;
 
     /**
-     * @ORM\OneToMany(targetEntity="Youshido\MessagesBundle\Entity\MessageStatus", mappedBy="message")
+     * @ORM\OneToMany(targetEntity="Youshido\MessagesBundle\Entity\MessageRelation", mappedBy="message")
      */
-    private $statuses;
+    private $messageRelations;
 
     public function __construct()
     {
-        $this->statuses = new ArrayCollection();
+        $this->messageRelations = new ArrayCollection();
         $this->attaches = new ArrayCollection();
     }
 
@@ -126,26 +126,26 @@ class Message
     }
 
     /**
-     * Set room
+     * Set conversation
      *
-     * @param \Youshido\MessagesBundle\Entity\Room $room
+     * @param \Youshido\MessagesBundle\Entity\Conversation $conversation
      * @return Message
      */
-    public function setRoom(\Youshido\MessagesBundle\Entity\Room $room = null)
+    public function setConversation(Conversation $conversation = null)
     {
-        $this->room = $room;
+        $this->conversation = $conversation;
 
         return $this;
     }
 
     /**
-     * Get room
+     * Get conversation
      *
-     * @return \Youshido\MessagesBundle\Entity\Room 
+     * @return \Youshido\MessagesBundle\Entity\Conversation
      */
-    public function getRoom()
+    public function getConversation()
     {
-        return $this->room;
+        return $this->conversation;
     }
 
     /**
@@ -177,7 +177,7 @@ class Message
      * @param \Youshido\MessagesBundle\Entity\Attach $attaches
      * @return Message
      */
-    public function addAttach(\Youshido\MessagesBundle\Entity\Attach $attaches)
+    public function addAttach(Attach $attaches)
     {
         $this->attaches[] = $attaches;
 
@@ -189,7 +189,7 @@ class Message
      *
      * @param \Youshido\MessagesBundle\Entity\Attach $attaches
      */
-    public function removeAttach(\Youshido\MessagesBundle\Entity\Attach $attaches)
+    public function removeAttach(Attach $attaches)
     {
         $this->attaches->removeElement($attaches);
     }
@@ -205,35 +205,35 @@ class Message
     }
 
     /**
-     * Add statuses
+     * Add Message Relation
      *
-     * @param \Youshido\MessagesBundle\Entity\MessageStatus $statuses
+     * @param \Youshido\MessagesBundle\Entity\MessageRelation $messageRelation
      * @return Message
      */
-    public function addStatus(\Youshido\MessagesBundle\Entity\MessageStatus $statuses)
+    public function addMessageRelation(MessageRelation $messageRelation)
     {
-        $this->statuses[] = $statuses;
+        $this->messageRelations[] = $messageRelation;
 
         return $this;
     }
 
     /**
-     * Remove statuses
+     * Remove Message Relation
      *
-     * @param \Youshido\MessagesBundle\Entity\MessageStatus $statuses
+     * @param \Youshido\MessagesBundle\Entity\MessageRelation $messageRelation
      */
-    public function removeStatus(\Youshido\MessagesBundle\Entity\MessageStatus $statuses)
+    public function removeMessageRelation(MessageRelation $messageRelation)
     {
-        $this->statuses->removeElement($statuses);
+        $this->messageRelations->removeElement($messageRelation);
     }
 
     /**
-     * Get statuses
+     * Get Message Relations
      *
      * @return \Doctrine\Common\Collections\Collection 
      */
-    public function getStatuses()
+    public function getMessageRelations()
     {
-        return $this->statuses;
+        return $this->messageRelations;
     }
 }

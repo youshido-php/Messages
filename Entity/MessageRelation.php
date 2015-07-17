@@ -5,16 +5,18 @@ namespace Youshido\MessagesBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * MessageStatus
+ * MessageRelation
  *
- * @ORM\Table(name="messages_statuses")
- * @ORM\Entity(repositoryClass="Youshido\MessagesBundle\Entity\Repository\MessageStatusRepository")
+ * @ORM\Table(name="messages_relation")
+ * @ORM\Entity(repositoryClass="Youshido\MessagesBundle\Entity\Repository\MessageRelationRepository")
  */
-class MessageStatus
+class MessageRelation
 {
 
-    const STATUS_UNREAD = 0;
-    const STATUS_READ = 1;
+    const STATUS_NEW = 0;
+    const STATUS_SENT = 1;
+    const STATUS_SEEN = 2;
+    const STATUS_DELETED = 3;
 
     /**
      * @var integer
@@ -30,10 +32,10 @@ class MessageStatus
      *
      * @ORM\Column(name="status", type="smallint")
      */
-    private $status = self::STATUS_UNREAD;
+    private $status = self::STATUS_NEW;
 
     /**
-     * @ORM\ManyToOne(targetEntity="Youshido\MessagesBundle\Entity\Message", inversedBy="statuses")
+     * @ORM\ManyToOne(targetEntity="Youshido\MessagesBundle\Entity\Message", inversedBy="messageRelations")
      * @ORM\JoinColumn(name="message_id", referencedColumnName="id")
      */
     private $message;
@@ -41,10 +43,14 @@ class MessageStatus
     /**
      * @var Author
      *
-     * @ORM\ManyToOne(targetEntity="Youshido\MessagesBundle\Entity\Author", inversedBy="statuses")
+     * @ORM\ManyToOne(targetEntity="Youshido\MessagesBundle\Entity\Author", inversedBy="messageRelations")
      * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
      */
     private $author;
+
+    private $seenAt;
+    private $sentAt;
+    private $deleteAt;
 
     /**
      * Get id
@@ -60,7 +66,7 @@ class MessageStatus
      * Set status
      *
      * @param integer $status
-     * @return MessageStatus
+     * @return MessageRelation
      */
     public function setStatus($status)
     {
@@ -83,9 +89,9 @@ class MessageStatus
      * Set message
      *
      * @param \Youshido\MessagesBundle\Entity\Message $message
-     * @return MessageStatus
+     * @return MessageRelation
      */
-    public function setMessage(\Youshido\MessagesBundle\Entity\Message $message = null)
+    public function setMessage(Message $message = null)
     {
         $this->message = $message;
 
@@ -106,9 +112,9 @@ class MessageStatus
      * Set author
      *
      * @param \Youshido\MessagesBundle\Entity\Author $author
-     * @return MessageStatus
+     * @return MessageRelation
      */
-    public function setAuthor(\Youshido\MessagesBundle\Entity\Author $author = null)
+    public function setAuthor(Author $author = null)
     {
         $this->author = $author;
 

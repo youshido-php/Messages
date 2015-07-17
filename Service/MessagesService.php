@@ -11,8 +11,8 @@ namespace Youshido\MessagesBundle\Service;
 use Symfony\Component\DependencyInjection\ContainerAware;
 use Youshido\MessagesBundle\Entity\Author;
 use Youshido\MessagesBundle\Entity\Message;
-use Youshido\MessagesBundle\Entity\MessageStatus;
-use Youshido\MessagesBundle\Entity\Room;
+use Youshido\MessagesBundle\Entity\MessageRelation;
+use Youshido\MessagesBundle\Entity\Conversation;
 
 class MessagesService extends ContainerAware
 {
@@ -21,9 +21,9 @@ class MessagesService extends ContainerAware
      * @param $user
      * @param integer|boolean $limit
      * @param integer $offset
-     * @return Room[]
+     * @return Conversation[]
      */
-    public function getRooms($user, $limit = false, $offset = 0)
+    public function getConversations($user, $limit = false, $offset = 0)
     {
         $author = $this->container->get('doctrine')
             ->getRepository('YMessagesBundle:Author')
@@ -31,8 +31,8 @@ class MessagesService extends ContainerAware
 
         if ($author) {
             return $this->container->get('doctrine')
-                ->getRepository('YMessagesBundle:Room')
-                ->findRoomsOfUser($author, $limit, $offset);
+                ->getRepository('YMessagesBundle:Conversation')
+                ->findConversationsOfUser($author, $limit, $offset);
         } else {
             return [];
         }
@@ -50,26 +50,26 @@ class MessagesService extends ContainerAware
 
         if ($author) {
             return $this->container->get('doctrine')
-                ->getRepository('YMessagesBundle:MessageStatus')
-                ->countUnReadMessages($author);
+                ->getRepository('YMessagesBundle:MessageRelation')
+                ->countMessagesWithStatus($author, MessageRelation::STATUS_NEW);
         } else {
             return 0;
         }
     }
 
-    public function getMessages($roomId, $user = false, $limit = false, $offset = 0)
+    public function getMessages($conversationId, $user = false, $limit = false, $offset = 0)
     {
-        $room = $this->container->get('doctrine')
-            ->getRepository('YMessagesBundle:Room')
-            ->find($roomId);
+        $conversation = $this->container->get('doctrine')
+            ->getRepository('YMessagesBundle:Conversation')
+            ->find($conversationId);
 
-        if (!$room) {
+        if (!$conversation) {
             throw new \InvalidArgumentException();
         }
 
         $messages = $this->container->get('doctrine')
             ->getRepository('YMessagesBundle:Message')
-            ->findMessages($room, $limit, $offset);
+            ->findMessages($conversation, $limit, $offset);
 
         if ($user) {
             $author = $this->container->get('doctrine')
@@ -77,7 +77,7 @@ class MessagesService extends ContainerAware
                 ->findOne($user);
 
             if ($author) {
-                $this->unreadMessagesForUser($messages, $author);
+                $this->setStatusForMessages($messages, $author, MessageRelation::STATUS_SEEN);
             } else {
                 return [];
             }
@@ -86,13 +86,13 @@ class MessagesService extends ContainerAware
         return $messages;
     }
 
-    public function sendMessage($roomId, $user, $content)
+    public function sendMessage($conversationId, $user, $content)
     {
-        $room = $this->container->get('doctrine')
-            ->getRepository('YMessagesBundle:Room')
-            ->find($roomId);
+        $conversation = $this->container->get('doctrine')
+            ->getRepository('YMessagesBundle:Conversation')
+            ->find($conversationId);
 
-        if (!$room) {
+        if (!$conversation) {
             throw new \InvalidArgumentException();
         }
 
@@ -104,29 +104,29 @@ class MessagesService extends ContainerAware
             throw new \InvalidArgumentException();
         }
 
-        $message = $this->createMessage($author, $room, $content);
+        $message = $this->createMessage($author, $conversation, $content);
         $this->container->get('doctrine')->getManager()->persist($message);
 
-        foreach($room->getAuthors() as $member){
-            $messageStatus = new MessageStatus();
-            $messageStatus
+        foreach($conversation->getAuthors() as $member){
+            $messageRelation = new MessageRelation();
+            $messageRelation
                 ->setAuthor($member)
                 ->setMessage($message)
-                ->setStatus($member->getId() == $author->getId() ? MessageStatus::STATUS_READ : MessageStatus::STATUS_UNREAD);
+                ->setStatus($member->getId() == $author->getId() ? MessageRelation::STATUS_SEEN : MessageRelation::STATUS_NEW);
 
-            $this->container->get('doctrine')->getManager()->persist($messageStatus);
+            $this->container->get('doctrine')->getManager()->persist($messageRelation);
         }
 
         $this->container->get('doctrine')->getManager()->flush();
     }
 
-    public function joinRoom($roomId, $user)
+    public function joinConversation($conversationId, $user)
     {
-        $room = $this->container->get('doctrine')
-            ->getRepository('YMessagesBundle:Room')
-            ->find($roomId);
+        $conversation = $this->container->get('doctrine')
+            ->getRepository('YMessagesBundle:Conversation')
+            ->find($conversationId);
 
-        if (!$room) {
+        if (!$conversation) {
             throw new \InvalidArgumentException();
         }
 
@@ -139,26 +139,26 @@ class MessagesService extends ContainerAware
         }
 
         //check exist
-        if (!$this->container->get('doctrine')->getRepository('YMessagesBundle:Room')
-            ->checkExistAuthor($room, $author)
+        if (!$this->container->get('doctrine')->getRepository('YMessagesBundle:Conversation')
+            ->checkExistAuthor($conversation, $author)
         ) {
-            $room->addAuthor($author);
-            $author->addRoom($room);
+            $conversation->addAuthor($author);
+            $author->addConversation($conversation);
 
             $this->container->get('doctrine')->getManager()->persist($author);
-            $this->container->get('doctrine')->getManager()->persist($room);
+            $this->container->get('doctrine')->getManager()->persist($conversation);
             $this->container->get('doctrine')->getManager()->flush();
         }
 
     }
 
-    public function leaveRoom($roomId, $user)
+    public function leaveConversation($conversationId, $user)
     {
-        $room = $this->container->get('doctrine')
-            ->getRepository('YMessagesBundle:Room')
-            ->find($roomId);
+        $conversation = $this->container->get('doctrine')
+            ->getRepository('YMessagesBundle:Conversation')
+            ->find($conversationId);
 
-        if (!$room) {
+        if (!$conversation) {
             throw new \InvalidArgumentException();
         }
 
@@ -170,27 +170,27 @@ class MessagesService extends ContainerAware
             throw new \InvalidArgumentException();
         }
 
-        $room->removeAuthor($author);
-        $author->removeRoom($room);
+        $conversation->removeAuthor($author);
+        $author->removeConversation($conversation);
 
         $this->container->get('doctrine')->getManager()->persist($author);
-        $this->container->get('doctrine')->getManager()->persist($room);
+        $this->container->get('doctrine')->getManager()->persist($conversation);
         $this->container->get('doctrine')->getManager()->flush();
     }
 
-    public function getMembers($roomId)
+    public function getMembers($conversationId)
     {
-        $room = $this->container->get('doctrine')
-            ->getRepository('YMessagesBundle:Room')
-            ->find($roomId);
+        $conversation = $this->container->get('doctrine')
+            ->getRepository('YMessagesBundle:Conversation')
+            ->find($conversationId);
 
-        if (!$room) {
+        if (!$conversation) {
             throw new \InvalidArgumentException();
         }
 
         $members = [];
         $em = $this->container->get('doctrine')->getManager();
-        foreach($room->getAuthors() as $author)
+        foreach($conversation->getAuthors() as $author)
         {
             /** @var Author $author */
             $members[] = $em->getReference($author->getAuthorClass(), $author->getAuthorId());
@@ -202,8 +202,9 @@ class MessagesService extends ContainerAware
     /**
      * @param $messages []
      * @param $author
+     * @param $status
      */
-    private function unreadMessagesForUser($messages, $author)
+    private function setStatusForMessages($messages, $author, $status)
     {
         $messagesIds = array_map(function ($message) {
             /** @var $message Message */
@@ -211,15 +212,15 @@ class MessagesService extends ContainerAware
         }, $messages);
 
         $this->container->get('doctrine')
-            ->getRepository('YMessagesBundle:MessageStatus')
-            ->unreadMessages($messagesIds, $author);
+            ->getRepository('YMessagesBundle:MessageRelation')
+            ->setStatusForMessages($messagesIds, $author, $status);
     }
 
-    private function createMessage(Author $author, Room $room, $content)
+    private function createMessage(Author $author, Conversation $conversation, $content)
     {
         $message = new Message();
         $message
-            ->setRoom($room)
+            ->setConversation($conversation)
             ->setAuthor($author)
             ->setContent($content);
 

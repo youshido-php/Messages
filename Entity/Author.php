@@ -37,9 +37,9 @@ class Author
     private $authorId;
 
     /**
-     * @ORM\OneToMany(targetEntity="Youshido\MessagesBundle\Entity\MessageStatus", mappedBy="author")
+     * @ORM\OneToMany(targetEntity="Youshido\MessagesBundle\Entity\MessageRelation", mappedBy="author")
      */
-    private $statuses;
+    private $messageRelations;
 
     /**
      * @ORM\OneToMany(targetEntity="Youshido\MessagesBundle\Entity\Message", mappedBy="author")
@@ -47,16 +47,16 @@ class Author
     private $messages;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Youshido\MessagesBundle\Entity\Room", inversedBy="authors")
-     * @ORM\JoinTable(name="messages_user_room_map")
+     * @ORM\ManyToMany(targetEntity="Youshido\MessagesBundle\Entity\Conversation", inversedBy="authors")
+     * @ORM\JoinTable(name="messages_user_conversation_map")
      */
-    private $rooms;
+    private $conversations;
 
     public function __construct()
     {
-        $this->statuses = new ArrayCollection();
+        $this->messageRelations = new ArrayCollection();
         $this->messages = new ArrayCollection();
-        $this->rooms = new ArrayCollection();
+        $this->conversations = new ArrayCollection();
     }
 
     /**
@@ -116,36 +116,36 @@ class Author
     }
 
     /**
-     * Add statuses
+     * Add message relation
      *
-     * @param \Youshido\MessagesBundle\Entity\MessageStatus $statuses
+     * @param \Youshido\MessagesBundle\Entity\MessageRelation $messageRelations
      * @return Author
      */
-    public function addStatus(\Youshido\MessagesBundle\Entity\MessageStatus $statuses)
+    public function addMessageRelations(MessageRelation $messageRelations)
     {
-        $this->statuses[] = $statuses;
+        $this->messageRelations[] = $messageRelations;
 
         return $this;
     }
 
     /**
-     * Remove statuses
+     * Remove message relation
      *
-     * @param \Youshido\MessagesBundle\Entity\MessageStatus $statuses
+     * @param \Youshido\MessagesBundle\Entity\MessageRelation $messageRelation
      */
-    public function removeStatus(\Youshido\MessagesBundle\Entity\MessageStatus $statuses)
+    public function removeMessageRelation(MessageRelation $messageRelation)
     {
-        $this->statuses->removeElement($statuses);
+        $this->messageRelations->removeElement($messageRelation);
     }
 
     /**
-     * Get statuses
+     * Get message relations
      *
      * @return \Doctrine\Common\Collections\Collection 
      */
-    public function getStatuses()
+    public function getMessageRelations()
     {
-        return $this->statuses;
+        return $this->messageRelations;
     }
 
     /**
@@ -182,35 +182,35 @@ class Author
     }
 
     /**
-     * Add rooms
+     * Add conversations
      *
-     * @param \Youshido\MessagesBundle\Entity\Room $rooms
+     * @param \Youshido\MessagesBundle\Entity\Conversation $conversation
      * @return Author
      */
-    public function addRoom(\Youshido\MessagesBundle\Entity\Room $rooms)
+    public function addConversation(Conversation $conversation)
     {
-        $this->rooms[] = $rooms;
+        $this->conversations[] = $conversation;
 
         return $this;
     }
 
     /**
-     * Remove rooms
+     * Remove conversations
      *
-     * @param \Youshido\MessagesBundle\Entity\Room $rooms
+     * @param \Youshido\MessagesBundle\Entity\Conversation $conversation
      */
-    public function removeRoom(\Youshido\MessagesBundle\Entity\Room $rooms)
+    public function removeConversation(Conversation $conversation)
     {
-        $this->rooms->removeElement($rooms);
+        $this->conversations->removeElement($conversation);
     }
 
     /**
-     * Get rooms
+     * Get conversations
      *
      * @return \Doctrine\Common\Collections\Collection 
      */
-    public function getRooms()
+    public function getConversations()
     {
-        return $this->rooms;
+        return $this->conversations;
     }
 }

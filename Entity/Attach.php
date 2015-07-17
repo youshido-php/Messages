@@ -4,6 +4,7 @@ namespace Youshido\MessagesBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Youshido\UploadableBundle\Annotations as Youshido;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * Attach

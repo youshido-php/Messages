@@ -7,12 +7,12 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * Room
+ * Conversation
  *
- * @ORM\Table(name="messages_room")
- * @ORM\Entity(repositoryClass="Youshido\MessagesBundle\Entity\Repository\RoomRepository")
+ * @ORM\Table(name="messages_conversation")
+ * @ORM\Entity(repositoryClass="Youshido\MessagesBundle\Entity\Repository\ConversationRepository")
  */
-class Room
+class Conversation
 {
     /**
      * @var integer
@@ -26,9 +26,9 @@ class Room
     /**
      * @var string
      *
-     * @ORM\Column(name="theme", type="string", length=255, nullable=true)
+     * @ORM\Column(name="subject", type="string", length=255, nullable=true)
      */
-    private $theme;
+    private $subject;
 
     /**
      * @var \DateTime
@@ -39,17 +39,17 @@ class Room
     private $createdAt;
 
     /**
-     * @ORM\OneToMany(targetEntity="Youshido\MessagesBundle\Entity\Message", mappedBy="room")
+     * @ORM\OneToMany(targetEntity="Youshido\MessagesBundle\Entity\Message", mappedBy="conversation")
      */
     private $messages;
 
     /**
-     * @ORM\ManyToMany(targetEntity="Youshido\MessagesBundle\Entity\Author", mappedBy="rooms")
+     * @ORM\ManyToMany(targetEntity="Youshido\MessagesBundle\Entity\Author", mappedBy="conversations")
      */
     private $authors;
 
     /**
-     * @ORM\OneToOne(targetEntity="Youshido\MessagesBundle\Entity\Message", mappedBy="room")
+     * @ORM\OneToOne(targetEntity="Youshido\MessagesBundle\Entity\Message", mappedBy="conversation")
      * @ORM\JoinColumn(name="last_message_id", referencedColumnName="id")
      */
     private $lastMessage;
@@ -73,12 +73,12 @@ class Room
     /**
      * Set theme
      *
-     * @param string $theme
-     * @return Room
+     * @param string $subject
+     * @return Conversation
      */
-    public function setTheme($theme)
+    public function setSubject($subject)
     {
-        $this->theme = $theme;
+        $this->subject = $subject;
 
         return $this;
     }
@@ -88,16 +88,16 @@ class Room
      *
      * @return string 
      */
-    public function getTheme()
+    public function getSubject()
     {
-        return $this->theme;
+        return $this->subject;
     }
 
     /**
      * Set createdAt
      *
      * @param \DateTime $createdAt
-     * @return Room
+     * @return Conversation
      */
     public function setCreatedAt($createdAt)
     {
@@ -120,7 +120,7 @@ class Room
      * Add messages
      *
      * @param \Youshido\MessagesBundle\Entity\Message $messages
-     * @return Room
+     * @return Conversation
      */
     public function addMessage(\Youshido\MessagesBundle\Entity\Message $messages)
     {
@@ -153,7 +153,7 @@ class Room
      * Add authors
      *
      * @param \Youshido\MessagesBundle\Entity\Author $authors
-     * @return Room
+     * @return Conversation
      */
     public function addAuthor(\Youshido\MessagesBundle\Entity\Author $authors)
     {
@@ -186,7 +186,7 @@ class Room
      * Set lastMessage
      *
      * @param \Youshido\MessagesBundle\Entity\Message $lastMessage
-     * @return Room
+     * @return Conversation
      */
     public function setLastMessage(\Youshido\MessagesBundle\Entity\Message $lastMessage = null)
     {

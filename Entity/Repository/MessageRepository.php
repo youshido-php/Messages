@@ -10,18 +10,18 @@ namespace Youshido\MessagesBundle\Entity\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Youshido\MessagesBundle\Entity\Author;
-use Youshido\MessagesBundle\Entity\Room;
+use Youshido\MessagesBundle\Entity\Conversation;
 
 class MessageRepository extends EntityRepository
 {
 
-    public function findMessages(Room $room, $limit = false, $offset = 0)
+    public function findMessages(Conversation $conversation, $limit = false, $offset = 0)
     {
         $builder = $this->createQueryBuilder('m')
             ->select('m, s, a')
-            ->where('m.room = :room')
-            ->setParameter('room', $room)
-            ->leftJoin('m.statuses', 's')
+            ->where('m.conversation = :conversation')
+            ->setParameter('conversation', $conversation)
+            ->leftJoin('m.messageRelations', 's')
             ->leftJoin('m.attaches', 'a')
             ->orderBy('m.createdAt', 'DESC');
 

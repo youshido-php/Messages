@@ -10,18 +10,18 @@ namespace Youshido\MessagesBundle\Entity\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Youshido\MessagesBundle\Entity\Author;
-use Youshido\MessagesBundle\Entity\Room;
+use Youshido\MessagesBundle\Entity\Conversation;
 
-class RoomRepository extends EntityRepository
+class ConversationRepository extends EntityRepository
 {
 
     /**
      * @param $author Author
      * @param bool|false $limit
      * @param int $offset ]
-     * @return Room[]
+     * @return Conversation[]
      */
-    public function findRoomsOfUser(Author $author, $limit = false, $offset = 0)
+    public function findConversationsOfUser(Author $author, $limit = false, $offset = 0)
     {
         $builder = $this->createQueryBuilder('r')
             ->innerJoin('r.authors', 'authors')
@@ -41,14 +41,14 @@ class RoomRepository extends EntityRepository
         return $builder->getQuery()->getResult();
     }
 
-    public function checkExistAuthor(Room $room, Author $author)
+    public function checkExistAuthor(Conversation $conversation, Author $author)
     {
         return $this->createQueryBuilder('r')
             ->select('COUNT(r)')
             ->innerJoin('r.authors', 'authors')
             ->where('authors.id = :author_id')
             ->andWhere('r.id = :id')
-            ->setParameter('id', $room->getId())
+            ->setParameter('id', $conversation->getId())
             ->setParameter('author_id', $author->getId())
             ->getQuery()
             ->getSingleScalarResult();
