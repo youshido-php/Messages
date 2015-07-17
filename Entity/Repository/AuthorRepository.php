@@ -10,12 +10,13 @@ namespace Youshido\MessagesBundle\Entity\Repository;
 
 use Doctrine\ORM\EntityRepository;
 use Youshido\MessagesBundle\Entity\Author;
+use Youshido\MessagesBundle\Service\Interfaces\UserInterface;
 
 class AuthorRepository extends EntityRepository
 {
 
     /**
-     * @param $user mixed
+     * @param $user UserInterface
      * @return Author
      * @throws \Doctrine\ORM\NonUniqueResultException
      */

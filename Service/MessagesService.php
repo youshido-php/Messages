@@ -13,6 +13,7 @@ use Youshido\MessagesBundle\Entity\Author;
 use Youshido\MessagesBundle\Entity\Message;
 use Youshido\MessagesBundle\Entity\MessageRelation;
 use Youshido\MessagesBundle\Entity\Conversation;
+use Youshido\MessagesBundle\Service\Interfaces\UserInterface;
 
 class MessagesService extends ContainerAware
 {
@@ -100,14 +101,14 @@ class MessagesService extends ContainerAware
             ->getRepository('YMessagesBundle:Author')
             ->findOne($user);
 
-        if(!$author){
+        if (!$author) {
             throw new \InvalidArgumentException();
         }
 
         $message = $this->createMessage($author, $conversation, $content);
         $this->container->get('doctrine')->getManager()->persist($message);
 
-        foreach($conversation->getAuthors() as $member){
+        foreach ($conversation->getAuthors() as $member) {
             $messageRelation = new MessageRelation();
             $messageRelation
                 ->setAuthor($member)
@@ -120,6 +121,43 @@ class MessagesService extends ContainerAware
         $this->container->get('doctrine')->getManager()->flush();
     }
 
+    public function findOrCreateConversation($firstUser, $secondUser, $subject = null)
+    {
+        $firstAuthor = $this->checkAndCreateAuthor($firstUser, true);
+        $secondAuthor = $this->checkAndCreateAuthor($secondUser, true);
+
+        $conversations = $this->findConversationsBetween($firstUser, $secondAuthor);
+
+        if ($conversations) {
+            foreach ($conversations as $conversation) {
+                if ($conversation->getSubject() == $subject) {
+                    return $conversation;
+                }
+            }
+        }
+
+        $conversation = new Conversation();
+        $conversation->addAuthor($firstAuthor);
+        $conversation->addAuthor($secondAuthor);
+        $conversation->setSubject($subject);
+
+        $this->container->get('doctrine')->getManager()->persist($conversation);
+        $this->container->get('doctrine')->getManager()->flush();
+
+        return $conversation;
+    }
+
+    /**
+     * @param $firstAuthor
+     * @param $secondAuthor
+     * @return Conversation[]|[]
+     */
+    public function findConversationsBetween(Author $firstAuthor, Author $secondAuthor)
+    {
+        return $this->container->get('doctrine')->getRepository('YMessagesBundle:MessageRelation')
+            ->findConversationsBetween($firstAuthor, $secondAuthor);
+    }
+
     public function joinConversation($conversationId, $user)
     {
         $conversation = $this->container->get('doctrine')
@@ -130,13 +168,7 @@ class MessagesService extends ContainerAware
             throw new \InvalidArgumentException();
         }
 
-        $author = $this->container->get('doctrine')
-            ->getRepository('YMessagesBundle:Author')
-            ->findOne($user);
-
-        if(!$author){
-            $author = $this->createAuthor($user);
-        }
+        $author = $this->checkAndCreateAuthor($user);
 
         //check exist
         if (!$this->container->get('doctrine')->getRepository('YMessagesBundle:Conversation')
@@ -166,7 +198,7 @@ class MessagesService extends ContainerAware
             ->getRepository('YMessagesBundle:Author')
             ->findOne($user);
 
-        if(!$author){
+        if (!$author) {
             throw new \InvalidArgumentException();
         }
 
@@ -190,8 +222,7 @@ class MessagesService extends ContainerAware
 
         $members = [];
         $em = $this->container->get('doctrine')->getManager();
-        foreach($conversation->getAuthors() as $author)
-        {
+        foreach ($conversation->getAuthors() as $author) {
             /** @var Author $author */
             $members[] = $em->getReference($author->getAuthorClass(), $author->getAuthorId());
         }
@@ -227,6 +258,33 @@ class MessagesService extends ContainerAware
         return $message;
     }
 
+    /**
+     * @param $user
+     * @param $persistAndFlush
+     * @return Author
+     */
+    private function checkAndCreateAuthor($user, $persistAndFlush = false)
+    {
+        $author = $this->container->get('doctrine')
+            ->getRepository('YMessagesBundle:Author')
+            ->findOne($user);
+
+        if (!$author) {
+            $author = $this->createAuthor($user);
+
+            if ($persistAndFlush) {
+                $this->container->get('doctrine')->getManager()->persist($author);
+                $this->container->get('doctrine')->getManager()->flush();
+            }
+        }
+
+        return $author;
+    }
+
+    /**
+     * @param $user UserInterface
+     * @return Author
+     */
     private function createAuthor($user)
     {
         $author = new Author();

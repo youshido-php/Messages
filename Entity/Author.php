@@ -48,7 +48,7 @@ class Author
 
     /**
      * @ORM\ManyToMany(targetEntity="Youshido\MessagesBundle\Entity\Conversation", inversedBy="authors")
-     * @ORM\JoinTable(name="messages_user_conversation_map")
+     * @ORM\JoinTable(name="messages_author_conversation_map")
      */
     private $conversations;
 

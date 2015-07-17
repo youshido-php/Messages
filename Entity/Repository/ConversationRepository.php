@@ -54,4 +54,20 @@ class ConversationRepository extends EntityRepository
             ->getSingleScalarResult();
     }
 
+
+    //todo: here write query
+    public function findConversationsBetween(Author $firstAuthor, Author $secondAuthor)
+    {
+        $queryBuilder = $this->createQueryBuilder('c');
+        $subQueryBuilder = $queryBuilder;
+
+        $queryBuilder
+            ->select('DISTINCT c')
+            ->where('c.author = :firstAuthor')
+            ->andWhere('c.')
+            ->setParameter(':firstAuthor', $firstAuthor)
+            ->setParameter(':secondAuthor', $secondAuthor)
+            ->getQuery()
+            ->getResult();
+    }
 }

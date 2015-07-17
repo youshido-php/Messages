@@ -39,5 +39,4 @@ class MessageRelationRepository extends EntityRepository
             ->getQuery()
             ->execute();
     }
-
 }

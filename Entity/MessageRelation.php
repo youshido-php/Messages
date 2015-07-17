@@ -48,8 +48,25 @@ class MessageRelation
      */
     private $author;
 
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="seen_at", type="datetime")
+     */
     private $seenAt;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="sent_at", type="datetime")
+     */
     private $sentAt;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="delete_at", type="datetime")
+     */
     private $deleteAt;
 
     /**
@@ -130,4 +147,63 @@ class MessageRelation
     {
         return $this->author;
     }
+
+    /**
+     * @return \DateTime
+     */
+    public function getSeenAt()
+    {
+        return $this->seenAt;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getDeleteAt()
+    {
+        return $this->deleteAt;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getSentAt()
+    {
+        return $this->sentAt;
+    }
+
+    /**
+     * @param \DateTime $sentAt
+     * @return MessageRelation
+     */
+    public function setSentAt($sentAt)
+    {
+        $this->sentAt = $sentAt;
+
+        return $this;
+    }
+
+    /**
+     * @param \DateTime $seenAt
+     * @return MessageRelation
+     */
+    public function setSeenAt($seenAt)
+    {
+        $this->seenAt = $seenAt;
+
+        return $this;
+    }
+
+    /**
+     * @param \DateTime $deleteAt
+     * @return MessageRelation
+     */
+    public function setDeleteAt($deleteAt)
+    {
+        $this->deleteAt = $deleteAt;
+
+        return $this;
+    }
+
+
 }
