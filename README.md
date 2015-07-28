@@ -6,6 +6,9 @@ $user = $this->get('doctrine')->getRepository('AppBundle:User')
 
 $user2 = $this->get('doctrine')->getRepository('AppBundle:User')
     ->find(2);
+    
+$user3 = $this->get('doctrine')->getRepository('AppBundle:User')
+    ->find(3);
 
 $conversations = $this->get('messages')->getConversations($user);
 $newMessages = $this->get('messages')->countUnreadMessages($user);
@@ -27,4 +30,8 @@ $this->get('messages')->joinConversation($conversation->getId(), $user2);
 $this->get('messages')->leaveConversation($conversation->getId(), $user2);
 
 $members = $this->get('messages')->getMembers($conversation->getId());
+
+$conversation = $this->get('messages')->findOrCreateConversation($user2, $user3);
+
+$is = $this->get('messages')->isConversationBetween($user, $user2);
 ```
