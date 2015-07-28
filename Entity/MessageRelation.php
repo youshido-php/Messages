@@ -51,21 +51,21 @@ class MessageRelation
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="seen_at", type="datetime")
+     * @ORM\Column(name="seen_at", type="datetime", nullable=true)
      */
     private $seenAt;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="sent_at", type="datetime")
+     * @ORM\Column(name="sent_at", type="datetime", nullable=true)
      */
     private $sentAt;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="delete_at", type="datetime")
+     * @ORM\Column(name="delete_at", type="datetime", nullable=true)
      */
     private $deleteAt;
 

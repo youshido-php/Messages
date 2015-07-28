@@ -126,7 +126,7 @@ class MessagesService extends ContainerAware
         $firstAuthor = $this->checkAndCreateAuthor($firstUser, true);
         $secondAuthor = $this->checkAndCreateAuthor($secondUser, true);
 
-        $conversations = $this->findConversationsBetween($firstUser, $secondAuthor);
+        $conversations = $this->findConversationsBetween($firstAuthor, $secondAuthor);
 
         if ($conversations) {
             foreach ($conversations as $conversation) {
@@ -152,10 +152,18 @@ class MessagesService extends ContainerAware
      * @param $secondAuthor
      * @return Conversation[]|[]
      */
-    public function findConversationsBetween(Author $firstAuthor, Author $secondAuthor)
+    private function findConversationsBetween(Author $firstAuthor, Author $secondAuthor)
     {
-        return $this->container->get('doctrine')->getRepository('YMessagesBundle:MessageRelation')
+        return $this->container->get('doctrine')->getRepository('YMessagesBundle:Conversation')
             ->findConversationsBetween($firstAuthor, $secondAuthor);
+    }
+
+    public function isConversationBetween($firstUser, $secondUser)
+    {
+        $firstAuthor = $this->checkAndCreateAuthor($firstUser, true);
+        $secondAuthor = $this->checkAndCreateAuthor($secondUser, true);
+
+        return $this->findConversationsBetween($firstAuthor, $secondAuthor) ? true : false;
     }
 
     public function joinConversation($conversationId, $user)
